@@ -17,11 +17,11 @@ const uploadOnCloudinary = async (localFilePath) => {
       resource_type: 'auto',
     });
     // FILE HAS uploaded
-    console.log('file has been loaded successfully', response.url);
+    fs.unlinkSync(localFilePath);
     return response;
   } catch (err) {
     // when flies fail to upload
-    fs.unlink(localFilePath);
+    fs.unlinkSync(localFilePath);
     return null;
   }
 };
