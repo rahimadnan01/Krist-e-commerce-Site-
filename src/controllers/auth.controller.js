@@ -3,6 +3,7 @@ import {ApiError} from "../utils/ApiError.js";
 import {User} from "../models/user.model.js";
 import {uploadOnCloudinary} from "../utils/cloudinary.js";
 import {ApiResponse} from "../utils/ApiResponse.js";
+import jwt from "jsonwebtoken";
 const generateAccessAndRefreshToken = async (userId) => {
   try {
     const user = await User.findById(userId);
@@ -10,7 +11,7 @@ const generateAccessAndRefreshToken = async (userId) => {
     const refreshToken = user.getRefreshToken();
     user.refreshToken = refreshToken;
     await user.save({validateBeforeSave: false});
-    return accessToken, refreshToken;
+    return {accessToken, refreshToken};
   } catch (error) {
     throw new ApiError(
       500,
@@ -64,14 +65,8 @@ const registerUser = wrapAsync(async (req, res, next) => {
 });
 
 const loginUser = wrapAsync(async (req, res) => {
-  // fetch userdata
-  // find the user
-  // compare password
-  // access and refresh token
-  // res send
-
-  let {username, email} = req.body;
-  if (!username || !email) {
+  let {username, email, password} = req.body;
+  if (!(username || email)) {
     throw new ApiError(400, "username and email is required");
   }
 
@@ -85,11 +80,14 @@ const loginUser = wrapAsync(async (req, res) => {
   if (!passwordResult) {
     throw new ApiError(400, "invalid Credentials");
   }
+  console.log(user);
+  let {accessToken, refreshToken} = await generateAccessAndRefreshToken(
+    user._id
+  );
 
   let loggedInUser = await User.findById(user._id).select(
     "-password -refreshToken"
   );
-  let {accessToken, refreshToken} = generateAccessAndRefreshToken(user._id);
 
   let options = {
     httpOnly: true,
@@ -133,4 +131,58 @@ const logoutUser = wrapAsync(async (req, res) => {
     .json(new ApiResponse(200, {}, "user Logout successfully"));
 });
 
-export {registerUser, loginUser, logoutUser};
+const refreshAccessToken = wrapAsync(async (req, res) => {
+  const incomingRefreshToken =
+    req.cookies?.refreshToken || req.body.refreshToken;
+
+  const decodedToken = jwt.verify(
+    incomingRefreshToken,
+    process.env.REFRESH_TOKEN_SECRET
+  );
+
+  if (!decodedToken) {
+    throw new ApiError(401, "Unauthorized User");
+  }
+
+  const user = await User.findById(decodedToken._id);
+  if (incomingRefreshToken !== user.refreshToken) {
+    throw new ApiError(401, "User is Unauthorized");
+  }
+
+  const {accessToken, newRefreshToken} = await generateAccessAndRefreshToken(
+    user._id
+  );
+
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
+
+  res
+    .status(200)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", newRefreshToken, option)
+    .json(
+      new ApiResponse(
+        200,
+        {
+          accessToken,
+          refreshToken: newRefreshToken,
+        },
+        "accessToken refreshed"
+      )
+    );
+});
+
+// for rendering Pages
+const renderingLoginPage = (req, res) => {
+  res.render("../views/login.ejs");
+};
+
+export {
+  registerUser,
+  loginUser,
+  logoutUser,
+  refreshAccessToken,
+  renderingLoginPage,
+};

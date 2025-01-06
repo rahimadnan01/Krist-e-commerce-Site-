@@ -22,7 +22,11 @@ app.set('views', path.join(__dirname, 'views'));
 export { app };
 
 // import routes
-import userRouter from './routes/user.routes.js';
+import authRouter from './routes/auth.routes.js';
 
 // routers declaration
-app.use('/api/v1/users', userRouter);
+app.use('/api/v1/users', authRouter);
+
+
+
+

@@ -1,19 +1,19 @@
 import jwt from "jsonwebtoken";
-import {wrapAsync} from "../utils/wrapAsync";
+import {wrapAsync} from "../utils/wrapAsync.js";
 import cookieParser from "cookie-parser";
-import {ApiError} from "../utils/ApiError";
-import {User} from "../models/user.model";
+import {ApiError} from "../utils/ApiError.js";
+import {User} from "../models/user.model.js";
 export const verifyJWT = wrapAsync(async (req, res, next) => {
   try {
     const token =
-      req.cookie?.accessToken ||
-      req.header("Authorization").replace("Bearer", "");
+      req.cookies?.accessToken ||
+      req.header("Authorization")?.replace("Bearer", "");
 
     if (!token) {
       throw new ApiError(400, "Unauthorized user");
     }
 
-    const decodedToken = jwt.verify(token, ACCESS_TOKEN_SECRET);
+    const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
     if (!decodedToken) {
       throw new ApiError(500, "Something went wrong while accessing token");
