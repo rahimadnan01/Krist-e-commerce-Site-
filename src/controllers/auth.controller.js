@@ -176,7 +176,7 @@ const refreshAccessToken = wrapAsync(async (req, res) => {
 
 // for rendering Pages
 const renderingLoginPage = (req, res) => {
-  res.render("../views/login.ejs");
+  res.render("../views/pages/login.ejs");
 };
 
 export {
