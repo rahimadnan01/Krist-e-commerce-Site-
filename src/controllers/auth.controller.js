@@ -61,16 +61,23 @@ const registerUser = wrapAsync(async (req, res, next) => {
 
   res
     .status(201)
-    .json(new ApiResponse(200, "User created successfully", userCreated));
+
+    .json(
+      new ApiResponse(200, "User created successfully", {
+        userCreated,
+        redirectUrl: "/api/v1/users/login",
+      })
+    );
 });
 
 const loginUser = wrapAsync(async (req, res) => {
-  let {username, email, password} = req.body;
-  if (!(username || email)) {
-    throw new ApiError(400, "username and email is required");
+  let {email, password} = req.body;
+
+  if (!password || !email) {
+    throw new ApiError(400, "Password and email is required");
   }
 
-  let user = await User.findOne({$or: [{username}, {email}]});
+  let user = await User.findOne({email});
 
   if (!user) {
     throw new ApiError(400, "User not Found");
@@ -93,7 +100,7 @@ const loginUser = wrapAsync(async (req, res) => {
     httpOnly: true,
     secure: true,
   };
-
+  let redirectUrl = "http://localhost:3000/api/v1/users/home";
   res
     .status(200)
     .cookie("accessToken", accessToken, options)
@@ -101,6 +108,7 @@ const loginUser = wrapAsync(async (req, res) => {
     .json(
       new ApiResponse(200, {
         user: loggedInUser,
+        redirectUrl,
         accessToken,
         refreshToken,
       })
@@ -178,6 +186,12 @@ const refreshAccessToken = wrapAsync(async (req, res) => {
 const renderingLoginPage = (req, res) => {
   res.render("../views/pages/login.ejs");
 };
+const renderingSignupPage = (req, res) => {
+  res.render("../views/pages/signup.ejs");
+};
+const renderingHomePage = (req, res) => {
+  res.render("../views/pages/home.ejs");
+};
 
 export {
   registerUser,
@@ -185,4 +199,6 @@ export {
   logoutUser,
   refreshAccessToken,
   renderingLoginPage,
+  renderingSignupPage,
+  renderingHomePage,
 };

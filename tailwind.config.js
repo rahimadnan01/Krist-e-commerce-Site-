@@ -10,7 +10,8 @@ module.exports = {
     extend: {
       backgroundImage: {
         "sign-in": "url('/assets/Logo.png')",
-        "login-left":"url('/assets/sign-in.png')"
+        "login-left": "url('/assets/sign-in.png')",
+        "signup-left": "url('/assets/signup.png')",
       },
     },
   },
