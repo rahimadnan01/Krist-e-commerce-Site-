@@ -25,6 +25,16 @@ export {app};
 
 // import routes
 import authRouter from "./routes/auth.routes.js";
+import homeRoute from "./routes/home.routes.js";
+import productRoute from "./routes/products.routes.js";
+import {errorHandler} from "./middlewares/error.middelware.js";
 
 // routers declaration
-app.use("/api/v1/users", authRouter);
+app.use("/api/v1/auth", authRouter);
+app.use("/api/v1", homeRoute);
+app.use("/api/v1", productRoute);
+app.all("*", (req, res, next) => {
+  next({status: 404, message: "Page Not Found"});
+});
+
+app.use(errorHandler);

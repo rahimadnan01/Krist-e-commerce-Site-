@@ -19,9 +19,7 @@ export const verifyJWT = wrapAsync(async (req, res, next) => {
       throw new ApiError(500, "Something went wrong while accessing token");
     }
 
-    const user = await User.findById(decodedToken?._id).select(
-      "-password -refreshToken"
-    );
+    const user = await User.findById(decodedToken?._id).select("-password ");
     if (!user) {
       throw new Error(500, "something went wrong while finding a user");
     }

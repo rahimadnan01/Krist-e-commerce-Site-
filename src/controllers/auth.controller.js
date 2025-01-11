@@ -11,6 +11,9 @@ const generateAccessAndRefreshToken = async (userId) => {
     const refreshToken = user.getRefreshToken();
     user.refreshToken = refreshToken;
     await user.save({validateBeforeSave: false});
+    await User.findByIdAndUpdate(userId, {
+      refreshToken: refreshToken,
+    });
     return {accessToken, refreshToken};
   } catch (error) {
     throw new ApiError(
@@ -26,6 +29,9 @@ const registerUser = wrapAsync(async (req, res, next) => {
     throw new ApiError(400, "All fields are required");
   }
 
+  if (password.length < 8) {
+    throw new ApiError(400, "Password must have 8 characters");
+  }
   const existedUser = await User.findOne({$or: [{username}, {email}]});
 
   if (existedUser) {
@@ -65,7 +71,7 @@ const registerUser = wrapAsync(async (req, res, next) => {
     .json(
       new ApiResponse(200, "User created successfully", {
         userCreated,
-        redirectUrl: "/api/v1/users/login",
+        redirectUrl: "/api/v1/auth/login",
       })
     );
 });
@@ -87,7 +93,7 @@ const loginUser = wrapAsync(async (req, res) => {
   if (!passwordResult) {
     throw new ApiError(400, "invalid Credentials");
   }
-  console.log(user);
+
   let {accessToken, refreshToken} = await generateAccessAndRefreshToken(
     user._id
   );
@@ -100,7 +106,7 @@ const loginUser = wrapAsync(async (req, res) => {
     httpOnly: true,
     secure: true,
   };
-  let redirectUrl = "http://localhost:3000/api/v1/users/home";
+  let redirectUrl = "http://localhost:3000/api/v1/home";
   res
     .status(200)
     .cookie("accessToken", accessToken, options)
@@ -142,7 +148,7 @@ const logoutUser = wrapAsync(async (req, res) => {
 const refreshAccessToken = wrapAsync(async (req, res) => {
   const incomingRefreshToken =
     req.cookies?.refreshToken || req.body.refreshToken;
-
+  console.log(incomingRefreshToken);
   const decodedToken = jwt.verify(
     incomingRefreshToken,
     process.env.REFRESH_TOKEN_SECRET
@@ -153,6 +159,7 @@ const refreshAccessToken = wrapAsync(async (req, res) => {
   }
 
   const user = await User.findById(decodedToken._id);
+
   if (incomingRefreshToken !== user.refreshToken) {
     throw new ApiError(401, "User is Unauthorized");
   }
@@ -169,7 +176,7 @@ const refreshAccessToken = wrapAsync(async (req, res) => {
   res
     .status(200)
     .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", newRefreshToken, option)
+    .cookie("refreshToken", newRefreshToken, options)
     .json(
       new ApiResponse(
         200,
@@ -181,16 +188,12 @@ const refreshAccessToken = wrapAsync(async (req, res) => {
       )
     );
 });
-
 // for rendering Pages
 const renderingLoginPage = (req, res) => {
   res.render("../views/pages/login.ejs");
 };
 const renderingSignupPage = (req, res) => {
   res.render("../views/pages/signup.ejs");
-};
-const renderingHomePage = (req, res) => {
-  res.render("../views/pages/home.ejs");
 };
 
 export {
@@ -200,5 +203,4 @@ export {
   refreshAccessToken,
   renderingLoginPage,
   renderingSignupPage,
-  renderingHomePage,
 };

@@ -6,7 +6,6 @@ import {
   refreshAccessToken,
   renderingLoginPage,
   renderingSignupPage,
-  renderingHomePage,
 } from "../controllers/auth.controller.js";
 import {upload} from "../middlewares/multer.middleware.js";
 import {verifyJWT} from "../middlewares/auth.middelware.js";
@@ -26,10 +25,11 @@ router
   )
   .get(renderingSignupPage);
 
-router.route("/home").get(renderingHomePage);
 router.route("/login").post(loginUser);
 router.route("/login").get(renderingLoginPage); //renders login page
+
 // secure routes
 router.route("/logout").post(verifyJWT, logoutUser);
-export default router;
 router.route("/refresh-token").post(refreshAccessToken);
+export default router;
+

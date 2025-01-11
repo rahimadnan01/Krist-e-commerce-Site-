@@ -12,6 +12,8 @@ module.exports = {
         "sign-in": "url('/assets/Logo.png')",
         "login-left": "url('/assets/sign-in.png')",
         "signup-left": "url('/assets/signup.png')",
+        hero: "url('/assets/hero-png.png')",
+        category: "url('/assets/category.jpg')",
       },
     },
   },

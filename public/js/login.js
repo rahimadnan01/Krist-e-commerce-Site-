@@ -6,7 +6,7 @@ loginForm.addEventListener("submit", async (event) => {
   let email = document.querySelector("#email").value;
   let password = document.querySelector("#password").value;
 
-  let response = await fetch("/api/v1/users/login", {
+  let response = await fetch("/api/v1/auth/login", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

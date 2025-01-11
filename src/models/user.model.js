@@ -19,6 +19,7 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
+      minLength: 8,
     },
 
     wishlist: [
@@ -35,10 +36,24 @@ const userSchema = new mongoose.Schema(
         },
       },
     ],
+    address: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Address",
+      },
+    ],
+    role: {
+      type: String,
+      required: true,
+    },
     profilePic: {
       type: String, //cloudinary url
     },
+    refreshToken: {
+      type: String,
+    },
   },
+
   {timestamps: true}
 );
 

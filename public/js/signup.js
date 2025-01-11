@@ -3,7 +3,13 @@ signupForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   const formData = new FormData(signupForm);
-  const response = await fetch("/api/v1/users/register", {
+  // password logic
+  const password = document.querySelector("#password").value;
+  console.log(password);
+  if (password.length < 8) {
+    alert("Password must have 8 characters");
+  }
+  const response = await fetch("/api/v1/auth/register", {
     method: "POST",
     body: formData,
   });
