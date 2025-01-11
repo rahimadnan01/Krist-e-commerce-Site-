@@ -38,23 +38,10 @@ const registerUser = wrapAsync(async (req, res, next) => {
     throw new ApiError(409, "User already exists ");
   }
 
-  let profilePicUrl = req.files?.profilePic[0]?.path;
-
-  if (!profilePicUrl) {
-    throw new ApiError(400, "Profile Picture is required");
-  }
-
-  let profilePicture = await uploadOnCloudinary(profilePicUrl);
-
-  if (!profilePicture) {
-    throw new ApiError(400, "Profile picture is required");
-  }
-
   const user = await User.create({
     username: username.toLowerCase(),
     email,
     password,
-    profilePic: profilePicture.url,
   });
 
   const userCreated = await User.findById(user._id).select(
@@ -129,8 +116,8 @@ const logoutUser = wrapAsync(async (req, res) => {
   await User.findByIdAndUpdate(
     req.user._id,
     {
-      $set: {
-        refreshToken: undefined,
+      $unset: {
+        refreshToken: 1,
       },
     },
     {
@@ -189,18 +176,5 @@ const refreshAccessToken = wrapAsync(async (req, res) => {
     );
 });
 // for rendering Pages
-const renderingLoginPage = (req, res) => {
-  res.render("../views/pages/login.ejs");
-};
-const renderingSignupPage = (req, res) => {
-  res.render("../views/pages/signup.ejs");
-};
 
-export {
-  registerUser,
-  loginUser,
-  logoutUser,
-  refreshAccessToken,
-  renderingLoginPage,
-  renderingSignupPage,
-};
+export {registerUser, loginUser, logoutUser, refreshAccessToken};

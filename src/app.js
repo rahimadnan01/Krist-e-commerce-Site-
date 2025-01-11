@@ -27,12 +27,14 @@ export {app};
 import authRouter from "./routes/auth.routes.js";
 import homeRoute from "./routes/home.routes.js";
 import productRoute from "./routes/products.routes.js";
+import userRoute from "./routes/user.routes.js";
 import {errorHandler} from "./middlewares/error.middelware.js";
 
 // routers declaration
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1", homeRoute);
 app.use("/api/v1", productRoute);
+app.use("/api/v1/", userRoute);
 app.all("*", (req, res, next) => {
   next({status: 404, message: "Page Not Found"});
 });

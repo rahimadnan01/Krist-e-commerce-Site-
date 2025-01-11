@@ -48,6 +48,7 @@ const userSchema = new mongoose.Schema(
     },
     profilePic: {
       type: String, //cloudinary url
+      
     },
     refreshToken: {
       type: String,

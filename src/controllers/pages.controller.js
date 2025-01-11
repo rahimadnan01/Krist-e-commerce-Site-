@@ -9,4 +9,10 @@ const renderingHomePage = wrapAsync(async (req, res) => {
   res.render("../views/pages/home.ejs", {products});
 });
 
-export {renderingHomePage};
+const renderingLoginPage = (req, res) => {
+  res.render("../views/pages/login.ejs");
+};
+const renderingSignupPage = (req, res) => {
+  res.render("../views/pages/signup.ejs");
+};
+export {renderingHomePage, renderingLoginPage, renderingSignupPage};

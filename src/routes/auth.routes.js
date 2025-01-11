@@ -4,26 +4,17 @@ import {
   logoutUser,
   registerUser,
   refreshAccessToken,
+} from "../controllers/auth.controller.js";
+
+import {verifyJWT} from "../middlewares/auth.middelware.js";
+import {
   renderingLoginPage,
   renderingSignupPage,
-} from "../controllers/auth.controller.js";
-import {upload} from "../middlewares/multer.middleware.js";
-import {verifyJWT} from "../middlewares/auth.middelware.js";
+} from "../controllers/pages.controller.js";
 
 const router = Router();
 
-router
-  .route("/register")
-  .post(
-    upload.fields([
-      {
-        name: "profilePic",
-        maxCount: 1,
-      },
-    ]),
-    registerUser
-  )
-  .get(renderingSignupPage);
+router.route("/register").post(registerUser).get(renderingSignupPage);
 
 router.route("/login").post(loginUser);
 router.route("/login").get(renderingLoginPage); //renders login page
@@ -32,4 +23,3 @@ router.route("/login").get(renderingLoginPage); //renders login page
 router.route("/logout").post(verifyJWT, logoutUser);
 router.route("/refresh-token").post(refreshAccessToken);
 export default router;
-
