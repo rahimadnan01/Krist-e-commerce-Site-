@@ -25,11 +25,12 @@ const productSchema = new mongoose.Schema(
       default: "1",
     },
     color: {
-      type: String,
+      type: [String],
+      required: true,
       default: "black",
     },
     size: {
-      type: String,
+      type: [String],
       required: true,
     },
     status: {
@@ -49,5 +50,4 @@ const productSchema = new mongoose.Schema(
   {timestamps: true}
 );
 const Product = mongoose.model("Product", productSchema);
-
 export {Product};

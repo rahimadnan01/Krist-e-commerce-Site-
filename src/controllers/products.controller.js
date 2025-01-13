@@ -4,12 +4,9 @@ import {ApiError} from "../utils/ApiError.js";
 import {ApiResponse} from "../utils/ApiResponse.js";
 import {uploadOnCloudinary} from "../utils/cloudinary.js";
 import {wrapAsync} from "../utils/wrapAsync.js";
+
+
 const creatingProducts = wrapAsync(async (req, res) => {
-  //get all data
-  //check no data is empty
-  //upload image
-  //get image path and url
-  //save the product in the Product collection
   let {
     title,
     slogan,
@@ -72,4 +69,102 @@ const creatingProducts = wrapAsync(async (req, res) => {
     .json(new ApiResponse(200, createdProduct, "Product created successfully"));
 });
 
-export {creatingProducts};
+const showProduct = wrapAsync(async (req, res) => {
+  const id = req.params.id;
+  const product = await Product.findById(id);
+
+  if (!product) {
+    throw new ApiError(400, "Bad request");
+  }
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, product, "Product showed successfully"));
+});
+
+const showAllProducts = wrapAsync(async (req, res) => {
+  let allProducts = await Product.find();
+  if (!allProducts) {
+    throw new ApiError(500, "Failed to fetch Products");
+  }
+  res
+    .status(200)
+    .json(new ApiResponse(200, allProducts, "Products shown successfully"));
+});
+
+const updatingProduct = wrapAsync(async (req, res) => {
+  //  find product by id
+  // extract all new fields
+  // update the previous one
+  // save the new updated product
+
+  let {
+    title,
+    slogan,
+    description,
+    reviews,
+    price,
+    color,
+    size,
+    status,
+    productPic,
+    category,
+  } = req.body;
+
+  const updateFields = {
+    title,
+    slogan,
+    description,
+    price,
+    color,
+    size,
+    status,
+    productPic,
+    category,
+  };
+  let id = req.params.id;
+  if (!id) {
+    throw new ApiError(400, "Please provide id to update the product");
+  }
+
+  let updatedProduct = await Product.findByIdAndUpdate(
+    id,
+    {$set: updateFields},
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+
+  if (!updatedProduct) {
+    throw new ApiError(500, "Failed to fetch products");
+  }
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, updatedProduct, "Product updated successfully"));
+});
+
+const deleteProduct = wrapAsync(async (req, res) => {
+  let id = req.params.id;
+  let deletedProduct = await Product.findByIdAndDelete(id);
+  if (!deleteProduct) {
+    throw new ApiError(500, "Failed to delete product");
+  }
+  res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        deletedProduct,
+        "Product has been deleted successfully"
+      )
+    );
+});
+export {
+  creatingProducts,
+  showProduct,
+  showAllProducts,
+  updatingProduct,
+  deleteProduct,
+};
