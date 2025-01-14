@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+
 const productSchema = new mongoose.Schema(
   {
     title: {
@@ -43,8 +44,9 @@ const productSchema = new mongoose.Schema(
       required: true,
     },
     category: {
-      type: String,
-      required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      required:true
     },
   },
   {timestamps: true}

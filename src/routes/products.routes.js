@@ -24,7 +24,15 @@ router
 router
   .route("/products/:id")
   .get(showProduct)
-  .put(updatingProduct)
+  .put(
+    upload.fields([
+      {
+        name: "productPic",
+        maxCount: 2,
+      },
+    ]),
+    updatingProduct
+  )
   .delete(deleteProduct);
 
 export default router;

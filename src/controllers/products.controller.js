@@ -5,7 +5,6 @@ import {ApiResponse} from "../utils/ApiResponse.js";
 import {uploadOnCloudinary} from "../utils/cloudinary.js";
 import {wrapAsync} from "../utils/wrapAsync.js";
 
-
 const creatingProducts = wrapAsync(async (req, res) => {
   let {
     title,
@@ -93,10 +92,7 @@ const showAllProducts = wrapAsync(async (req, res) => {
 });
 
 const updatingProduct = wrapAsync(async (req, res) => {
-  //  find product by id
-  // extract all new fields
-  // update the previous one
-  // save the new updated product
+  let id = req.params.id;
 
   let {
     title,
@@ -122,14 +118,34 @@ const updatingProduct = wrapAsync(async (req, res) => {
     productPic,
     category,
   };
-  let id = req.params.id;
+
   if (!id) {
     throw new ApiError(400, "Please provide id to update the product");
   }
 
+  let productPicUrl = null;
+  if (req.files?.productPic) {
+    const productPicPath = req.files.productPic[0]?.path;
+    productPicUrl = await uploadOnCloudinary(productPicPath);
+  }
+  const updateData = {
+    title,
+    slogan,
+    description,
+    price,
+    color,
+    size,
+    status,
+    category,
+  };
+  if (productPicUrl) {
+    updateData.productPic = productPicUrl.url;
+  }
   let updatedProduct = await Product.findByIdAndUpdate(
     id,
-    {$set: updateFields},
+    {
+      $set: updateData,
+    },
     {
       new: true,
       runValidators: true,
